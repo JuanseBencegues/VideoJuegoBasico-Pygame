@@ -2,15 +2,28 @@ import pygame
 import constantes
 from personaje import Personaje
 
-jugador  = Personaje(50,50)
-
 pygame.init()
 
 ventana = pygame.display.set_mode((constantes.ANCHO_VENTANA, constantes.ALTO_VENTANA)) #Inicia ventana
 run = True
-
 #nombre de la ventana
 pygame.display.set_caption("Juego")
+
+def escalar_img(image, scale):
+    """ Dada una imagen y valor, la imagen se escala al valor dado """
+    w = image.get_width()
+    h = image.get_height()
+    n_image = pygame.transform.scale(image, (w*scale, h*scale))
+    return n_image
+
+animaciones = []
+for i in range (10):
+    img = pygame.image.load(f"assets/images/characters/player/run_{i}.png")
+    img = escalar_img(img, constantes.ESCALA_PERSONAJE)
+    animaciones.append(img)
+
+
+jugador  = Personaje(50,50,animaciones)
 
 #definir variables de movimiento del jugador
 mover_arriba = False
@@ -20,8 +33,6 @@ mover_izquierda = False
 
 #Controlar frame-rate
 reloj = pygame.time.Clock()
-
-
 
 while run:
     #determinar fps
@@ -45,6 +56,7 @@ while run:
 
     #mover al jugador
     jugador.movimiento(delta_x, delta_y)
+    jugador.update()
 
     jugador.dibujar(ventana)
     #recorre los posibles distintos eventos que se ejecuten 
