@@ -1,6 +1,7 @@
 # Mi Juego en Pygame
 
-Este es un pequeño juego hecho en Python con la librería Pygame.
+Esto es un intento de juego, realizandose con el fin de aprender a utilizar pygame.
+Este proyecto fue hecho gracias al curso https://youtu.be/BUcSWQxY0MI?si=SoUjIpUFK8BNjza6.
 
 ## Requisitos
 
@@ -9,7 +10,7 @@ Este es un pequeño juego hecho en Python con la librería Pygame.
 ## Instalación
 
 ```bash
-git clone https://github.com/tu_usuario/mi_proyecto.git
+git clone https://github.com/JuanseBencegues/VideoJuegoBasico-Pygame.git
 cd mi_proyecto
 python3 -m venv venv
 source venv/bin/activate
