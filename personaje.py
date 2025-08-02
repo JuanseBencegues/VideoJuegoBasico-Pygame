@@ -13,7 +13,7 @@ class Personaje():
         self.update_time = pygame.time.get_ticks()
         self.image = animaciones[self.frame_index]
         #Forma [HITBOX] del jugador
-        self.forma = pygame.Rect( 0, 0 , constantes.ANCHO_PERSONAJE, constantes.ALTO_PERSONAJE) #crea rectangulo donde (coordenada x, coord y, ancho, alto)
+        self.forma = self.image.get_rect() #crea rectangulo donde (coordenada x, coord y, ancho, alto)
         #Posicion del jugador en la forma [HITBOX]
         self.forma.center = (x, y) #Cuando creo personaje, se inicia en las coordenadas dadas
     
@@ -46,5 +46,5 @@ class Personaje():
         #Dibuja imagen del personaje
         interfaz.blit(imagen_flip, self.forma)
         #dibujar rectangulo en la ventanda (interfaz) con el color y la forma [HITBOX]
-        """ pygame.draw.rect(interfaz,constantes.COLOR_PERSONAJE,self.forma,width=1) """
+        #pygame.draw.rect(interfaz,constantes.COLOR_PERSONAJE,self.forma,width=1)
         

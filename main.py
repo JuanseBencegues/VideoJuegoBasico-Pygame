@@ -1,11 +1,12 @@
 import pygame
 import constantes
 from personaje import Personaje
+from weapons import Weapon
+
 
 pygame.init()
 
 ventana = pygame.display.set_mode((constantes.ANCHO_VENTANA, constantes.ALTO_VENTANA)) #Inicia ventana
-run = True
 #nombre de la ventana
 pygame.display.set_caption("Juego")
 
@@ -16,14 +17,25 @@ def escalar_img(image, scale):
     n_image = pygame.transform.scale(image, (w*scale, h*scale))
     return n_image
 
+
+#Importar imagenes
+#Personaje
 animaciones = []
 for i in range (10):
     img = pygame.image.load(f"assets/images/characters/player/run_{i}.png")
     img = escalar_img(img, constantes.ESCALA_PERSONAJE)
     animaciones.append(img)
+#Arma
+imagen_ballesta = pygame.image.load("assets/images/weapons/crossbow.png")
+imagen_ballesta = escalar_img(imagen_ballesta, constantes.ESCALA_ARMA)
+#Flechas
+imagen_flecha = pygame.image.load("assets/images/weapons/arrow.png")
+imagen_flecha = escalar_img(imagen_flecha, constantes.ESCALA_ARMA)
 
-
+#Crear un jugador de la clase personaje
 jugador  = Personaje(50,50,animaciones)
+#Crear un arma de la clase weapon
+ballesta = Weapon(imagen_ballesta)
 
 #definir variables de movimiento del jugador
 mover_arriba = False
@@ -34,11 +46,11 @@ mover_izquierda = False
 #Controlar frame-rate
 reloj = pygame.time.Clock()
 
+run = True
 while run:
     #determinar fps
     reloj.tick(constantes.FPS)
-
-
+    #Fondo de la ventana
     ventana.fill(constantes.COLOR_FONDO)
 
     #Calcular movimiento jugador
@@ -56,9 +68,17 @@ while run:
 
     #mover al jugador
     jugador.movimiento(delta_x, delta_y)
-    jugador.update()
 
+    #Actualiza estado del jugador
+    jugador.update( )
+
+    #Actualiza estado del arma
+    ballesta.update(jugador)
+    #Dibujar al jugador
     jugador.dibujar(ventana)
+    #Dibujar el arma
+    ballesta.dibujar(ventana)
+
     #recorre los posibles distintos eventos que se ejecuten 
     for event in pygame.event.get(): #event.get entrega la lista de todos los eventos que pueden ocurrir
         if event.type == pygame.QUIT: 
@@ -85,7 +105,6 @@ while run:
                 mover_arriba = False
             if event.key == pygame.K_s: 
                 mover_abajo = False
-
 
     pygame.display.update() #refleja cambios
 
