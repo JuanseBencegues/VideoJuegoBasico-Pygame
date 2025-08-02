@@ -29,13 +29,16 @@ for i in range (10):
 imagen_ballesta = pygame.image.load("assets/images/weapons/crossbow.png")
 imagen_ballesta = escalar_img(imagen_ballesta, constantes.ESCALA_ARMA)
 #Flechas
-imagen_flecha = pygame.image.load("assets/images/weapons/arrow.png")
-imagen_flecha = escalar_img(imagen_flecha, constantes.ESCALA_ARMA)
+imagen_balas = pygame.image.load("assets/images/weapons/arrow.png")
+imagen_balas = escalar_img(imagen_balas, constantes.ESCALA_ARMA)
 
 #Crear un jugador de la clase personaje
 jugador  = Personaje(50,50,animaciones)
 #Crear un arma de la clase weapon
-ballesta = Weapon(imagen_ballesta)
+ballesta = Weapon(imagen_ballesta, imagen_balas)
+
+#Crear grupo de sprites
+grupo_balas = pygame.sprite.Group()
 
 #definir variables de movimiento del jugador
 mover_arriba = False
@@ -73,11 +76,26 @@ while run:
     jugador.update( )
 
     #Actualiza estado del arma
-    ballesta.update(jugador)
+    bala = ballesta.update(jugador)
+    if bala: 
+        #Si hay una bala se agrega al grupo
+        grupo_balas.add(bala)
+    for bala in grupo_balas:
+        bala.update()
+
+
+   # print(grupo_balas)
+
     #Dibujar al jugador
     jugador.dibujar(ventana)
     #Dibujar el arma
     ballesta.dibujar(ventana)
+    #Dibujar balas
+    for bala in grupo_balas:
+        bala.dibujar(ventana)
+
+    print(grupo_balas)
+
 
     #recorre los posibles distintos eventos que se ejecuten 
     for event in pygame.event.get(): #event.get entrega la lista de todos los eventos que pueden ocurrir

@@ -3,13 +3,18 @@ import constantes
 import math
 
 class Weapon():
-    def __init__(self, image):
+    def __init__(self, image, imagen_bala):
+        self.imagen_bala = imagen_bala
         self.image_original = image
         self.angulo = 0
         self.imagen = pygame.transform.rotate(self.image_original, self.angulo)
         self.forma = self.imagen.get_rect()
+        self.disparada = False
+        self.ultimo_disparo = pygame.time.get_ticks()
 
     def update(self, personaje):
+        disparo_cooldown = constantes.COOLDOWN_BALAS
+        bala = None
         #Centra el arma en el personaje
         self.forma.center = personaje.forma.center
         #posiciona el arma en el eje y
@@ -28,28 +33,23 @@ class Weapon():
         distancia_x = mouse_pos[0] - self.forma.centerx
         distancia_y = -(mouse_pos[1] - self.forma.centery)
         self.angulo = math.degrees(math.atan2(distancia_y, distancia_x))
-        #Rango base (cuando mira a la derecha)
-        min_angulo = constantes.MIN_ANGULO  
-        max_angulo = constantes.MAX_ANGULO  
-        #Si el personaje está mirando a la izquierda, reflejamos el cono
-        if personaje.flip:
-            # Reflejamos el ángulo: 180 - ángulo original
-            self.angulo = 180 - self.angulo
-
-            # También reflejamos el rango permitido
-            min_angulo, max_angulo = 180 - max_angulo, 180 - min_angulo 
-
-        # Aplico el límite
-        if self.angulo < min_angulo:
-            self.angulo = min_angulo
-        elif self.angulo > max_angulo:
-            self.angulo = max_angulo
+      
+        #Detectar clicks
+        if pygame.mouse.get_pressed()[0] and self.disparada == False and (pygame.time.get_ticks()-self.ultimo_disparo >= disparo_cooldown):
+            #Crea bala
+            bala = Bullet(self.imagen_bala, self.forma.centerx, self.forma.centery, self.angulo)
+            self.disparada = True
+            self.ultimo_disparo = pygame.time.get_ticks()
         
+        #resetear click del mouse
+        if pygame.mouse.get_pressed()[0] == False:
+            self.disparada = False
+        return bala
 
     def dibujar(self, interfaz):
         self.imagen = pygame.transform.rotate(self.imagen, self.angulo)
         interfaz.blit(self.imagen, self.forma)
-        #pygame.draw.rect(interfaz,constantes.COLOR_ARMA,self.forma,width=1)
+       # pygame.draw.rect(interfaz,constantes.COLOR_ARMA,self.forma,width=1)
 
     def rotar_arma(self, rotar):
         if rotar == True:
@@ -58,3 +58,29 @@ class Weapon():
         else:
             imagen_flip = pygame.transform.flip(self.image_original, flip_x=False, flip_y=False)   
             self.imagen = pygame.transform.rotate(imagen_flip, self.angulo)
+
+
+class Bullet(pygame.sprite.Sprite):
+    def __init__(self, image, x, y, angle):
+        pygame.sprite.Sprite.__init__(self) #Llamo al constructor de la clase Sprite de pygame
+        self.imagen_original = image
+        self.angulo = angle
+        self.image = pygame.transform.rotate(self.imagen_original, self.angulo)
+        self.rect = self.image.get_rect()
+        self.rect.center = (x,y)
+        
+        #Calculo valocidad
+        self.delta_x = math.cos(math.radians(self.angulo))*constantes.VELOCIDAD_BALA
+        self.delta_y = -math.sin(math.radians(self.angulo))*constantes.VELOCIDAD_BALA
+
+    def update(self):
+        self.rect.x += self.delta_x
+        self.rect.y += self.delta_y
+
+        #Eliminar balas que salieron de pantalla
+        if self.rect.right < 0 or self.rect.left > constantes.ANCHO_VENTANA or self.rect.bottom < 0 or self.rect.top > constantes.ALTO_VENTANA:
+            self.kill()
+
+
+    def dibujar(self, interfaz):
+        interfaz.blit(self.image, (self.rect.centerx, self.rect.centery - int(self.image.get_height()/2)))
