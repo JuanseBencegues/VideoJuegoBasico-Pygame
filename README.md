@@ -11,7 +11,7 @@ Este proyecto fue hecho gracias al curso https://youtu.be/BUcSWQxY0MI?si=SoUjIpU
 
 ```bash
 git clone https://github.com/JuanseBencegues/VideoJuegoBasico-Pygame.git
-cd mi_proyecto
+cd VideoJuegoBasico-Pygame
 python3 -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
