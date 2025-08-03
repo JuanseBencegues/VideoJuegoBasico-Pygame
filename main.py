@@ -2,20 +2,31 @@ import pygame
 import constantes
 from personaje import Personaje
 from weapons import Weapon
+import os
 
-
-pygame.init()
-
-ventana = pygame.display.set_mode((constantes.ANCHO_VENTANA, constantes.ALTO_VENTANA)) #Inicia ventana
-#nombre de la ventana
-pygame.display.set_caption("Juego")
-
+#-------------- Funciones --------------
 def escalar_img(image, scale):
     """ Dada una imagen y valor, la imagen se escala al valor dado """
     w = image.get_width()
     h = image.get_height()
     n_image = pygame.transform.scale(image, (w*scale, h*scale))
     return n_image
+
+def contar_elementos(directorio):
+    """ Entrega la cantidad de elementos en el directorio dado"""
+    return len(os.listdir(directorio))
+
+def nombres_carpetas(directorio):
+    """ Retorna una lista con el nombre de las carpertas en el directorio dado """
+    return os.listdir(directorio)
+
+#Inicia pygame
+pygame.init()
+
+ventana = pygame.display.set_mode((constantes.ANCHO_VENTANA, constantes.ALTO_VENTANA)) #Inicia ventana
+#nombre de la ventana
+pygame.display.set_caption("Juego")
+
 
 
 #Importar imagenes
@@ -25,6 +36,24 @@ for i in range (10):
     img = pygame.image.load(f"assets/images/characters/player/run_{i}.png")
     img = escalar_img(img, constantes.ESCALA_PERSONAJE)
     animaciones.append(img)
+
+#Enemigos
+directorio_enemigos = "assets/images/characters/enemies"
+tipo_enemigos = nombres_carpetas(directorio_enemigos)
+animaciones_enemigos = []
+for eni in tipo_enemigos:
+    lista_temp = []
+    ruta_temp = f"assets/images/characters/enemies/{eni}"
+    num_animaciones = contar_elementos(ruta_temp)
+    for i in range(num_animaciones):
+        img_enemigo = pygame.image.load(f"{ruta_temp}/{eni}_{i+1}.png")
+        if eni == "blood-demon":
+            img_enemigo = escalar_img(img_enemigo, constantes.ESCALA_ENEMIGO)
+        lista_temp.append(img_enemigo)
+    animaciones_enemigos.append(lista_temp)
+
+print(animaciones_enemigos)
+
 #Arma
 imagen_ballesta = pygame.image.load("assets/images/weapons/crossbow.png")
 imagen_ballesta = escalar_img(imagen_ballesta, constantes.ESCALA_ARMA)
@@ -32,19 +61,34 @@ imagen_ballesta = escalar_img(imagen_ballesta, constantes.ESCALA_ARMA)
 imagen_balas = pygame.image.load("assets/images/weapons/arrow.png")
 imagen_balas = escalar_img(imagen_balas, constantes.ESCALA_ARMA)
 
+#-------------- Personajes --------------
 #Crear un jugador de la clase personaje
-jugador  = Personaje(50,50,animaciones)
-#Crear un arma de la clase weapon
-ballesta = Weapon(imagen_ballesta, imagen_balas)
-
-#Crear grupo de sprites
-grupo_balas = pygame.sprite.Group()
-
+jugador  = Personaje(50,50,animaciones, 100)
 #definir variables de movimiento del jugador
 mover_arriba = False
 mover_abajo = False
 mover_derecha = False
 mover_izquierda = False
+
+#Crear un enemigo de la clase personaje
+blood_demon = Personaje(400,400,animaciones_enemigos[0],100)
+blood_demon_2 = Personaje(150,500,animaciones_enemigos[0],100)
+flying_demon = Personaje(200,200, animaciones_enemigos[1],100)
+flying_demon_2 = Personaje(300,80, animaciones_enemigos[1],100)
+#Crear lista de enemigos
+lista_enemigos = []
+lista_enemigos.append(blood_demon)
+lista_enemigos.append(blood_demon_2)
+lista_enemigos.append(flying_demon)
+lista_enemigos.append(flying_demon_2)
+
+#-------------- Armas --------------
+#Crear un arma de la clase weapon
+ballesta = Weapon(imagen_ballesta, imagen_balas)
+#Crear grupo de sprites
+grupo_balas = pygame.sprite.Group()
+
+
 
 #Controlar frame-rate
 reloj = pygame.time.Clock()
@@ -73,7 +117,11 @@ while run:
     jugador.movimiento(delta_x, delta_y)
 
     #Actualiza estado del jugador
-    jugador.update( )
+    jugador.update()
+    #Actualiza estado enemigos
+    for ene in lista_enemigos:
+        ene.update()
+        print(ene.energia)
 
     #Actualiza estado del arma
     bala = ballesta.update(jugador)
@@ -81,20 +129,18 @@ while run:
         #Si hay una bala se agrega al grupo
         grupo_balas.add(bala)
     for bala in grupo_balas:
-        bala.update()
-
-
-   # print(grupo_balas)
+        bala.update(lista_enemigos)
 
     #Dibujar al jugador
     jugador.dibujar(ventana)
     #Dibujar el arma
     ballesta.dibujar(ventana)
+    #Dibujar enemigos
+    for ene in lista_enemigos:
+        ene.dibujar(ventana)
     #Dibujar balas
     for bala in grupo_balas:
         bala.dibujar(ventana)
-
-    print(grupo_balas)
 
 
     #recorre los posibles distintos eventos que se ejecuten 

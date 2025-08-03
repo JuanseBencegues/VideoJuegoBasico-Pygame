@@ -1,6 +1,7 @@
 import pygame
 import constantes
 import math
+import random
 
 class Weapon():
     def __init__(self, image, imagen_bala):
@@ -73,13 +74,21 @@ class Bullet(pygame.sprite.Sprite):
         self.delta_x = math.cos(math.radians(self.angulo))*constantes.VELOCIDAD_BALA
         self.delta_y = -math.sin(math.radians(self.angulo))*constantes.VELOCIDAD_BALA
 
-    def update(self):
+    def update(self, lista_enemigos):
         self.rect.x += self.delta_x
         self.rect.y += self.delta_y
 
         #Eliminar balas que salieron de pantalla
         if self.rect.right < 0 or self.rect.left > constantes.ANCHO_VENTANA or self.rect.bottom < 0 or self.rect.top > constantes.ALTO_VENTANA:
             self.kill()
+        
+        #Verificar colision con enemigos
+        for enemigo in lista_enemigos:
+            if enemigo.forma.colliderect(self.rect):
+                damage = constantes.DMG_ARMA + random.randint(0,constantes.DMG_CRIT_MAX_ARMA)
+                enemigo.energia -= damage
+                self.kill()
+                break
 
 
     def dibujar(self, interfaz):

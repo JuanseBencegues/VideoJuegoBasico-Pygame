@@ -2,10 +2,11 @@ import pygame
 import constantes
 
 class Personaje():
-    def __init__(self, x, y, animaciones):
+    def __init__(self, x, y, animaciones, energia):
         #Invertir horizontalmente al jugador
         self.flip = False
-
+        self.vivo = True
+        self.energia = energia
         self.animaciones = animaciones
         #Figura de la animacion mostrandose actualmente
         self.frame_index = 0
@@ -29,8 +30,13 @@ class Personaje():
         self.forma.y = self.forma.y + delta_y
 
     def update(self):
+        #comprobar si ha muerto
+        if self.energia <= 0:
+            self.energia = 0
+            self.vivo = False
+            
         #tiempo antes de cambiar frame de animacion (en miliseg)
-        cooldown_animacion = 75
+        cooldown_animacion = 90
         self.image = self.animaciones[self.frame_index]
         if pygame.time.get_ticks() - self.update_time >= cooldown_animacion:
             #tiempo actual - tiempo desde que se inicio el juego >= ...
