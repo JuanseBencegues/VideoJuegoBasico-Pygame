@@ -1,4 +1,5 @@
 import pygame.sprite
+import constantes
 
 """ La clase importada sprite YA TIENE SU PROPIO UPDATE """
 class Item(pygame.sprite.Sprite):
@@ -10,9 +11,20 @@ class Item(pygame.sprite.Sprite):
         self.update_time = pygame.time.get_ticks()
         self.image = self.animation_list[self.frame_index]
         self.rect = self.image.get_rect()
-        self.rect = (x,y)
+        self.rect.center = (x,y)
     
-    def update(self):
+    def update(self, personaje):
+        #Comprobar colision
+        if self.rect.colliderect(personaje.forma):
+            #monedas
+            if self.item_type == 0:
+                personaje.score += 1
+            elif self.item_type == 1: 
+                personaje.energia += constantes.CURACION_POCION
+                if personaje.energia > 100:
+                    personaje.energia = 100
+            self.kill()
+
         cooldown_animacion = 100
         self.image = self.animation_list[self.frame_index]
         if pygame.time.get_ticks() - self.update_time >= cooldown_animacion:

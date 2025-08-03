@@ -33,6 +33,10 @@ def vida_jugador():
         else:
             ventana.blit(corazon_vacio,(5+i*50,5))
 
+def dibujar_texto(texto, fuente, color, x, y):
+    img = fuente.render(texto, True, color)
+    ventana.blit(img, (x,y))
+
 #---------------- Pantalla ----------------
 #Inicia pygame
 pygame.init()
@@ -103,7 +107,7 @@ for i in range(contar_elementos(directorio_monedas)):
 #---------------- Personajes ----------------
 
 #Crear un jugador de la clase personaje
-jugador  = Personaje(50,70,animaciones, 100)
+jugador  = Personaje(50,70,animaciones, 40)
 #definir variables de movimiento del jugador
 mover_arriba = False
 mover_abajo = False
@@ -194,7 +198,7 @@ while run:
     grupo_damage_text.update()
 
     #Actualiza items
-    grupo_items.update()
+    grupo_items.update(jugador)
 
     #---------------- Dibujar ----------------
     # al jugador
@@ -209,12 +213,15 @@ while run:
         bala.dibujar(ventana)
     # corazones
     vida_jugador()
-    # textos
+    # textos de puntuacion
+    dibujar_texto(f"Score: {jugador.score}", font, (255,255,255), 700, 13)
+    # textos de daño
     grupo_damage_text.draw(ventana)
     # items
     grupo_items.draw(ventana)
 
-    #recorre los posibles distintos eventos que se ejecuten 
+    #---------------- Eventos ----------------
+    #movimiento del jugador
     for event in pygame.event.get(): #event.get entrega la lista de todos los eventos que pueden ocurrir
         if event.type == pygame.QUIT: 
             #event.type muestra que tipo de evento es 

@@ -4,6 +4,7 @@ import constantes
 class Personaje():
     def __init__(self, x, y, animaciones, energia):
         #Invertir horizontalmente al jugador
+        self.score = 0
         self.flip = False
         self.vivo = True
         self.energia = energia
