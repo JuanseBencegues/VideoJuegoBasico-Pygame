@@ -2,9 +2,10 @@ import pygame
 import constantes
 from personaje import Personaje
 from weapons import Weapon
+from textos import DmgText
 import os
 
-#-------------- Funciones --------------
+#---------------- Funciones ----------------
 def escalar_img(image, scale):
     """ Dada una imagen y valor, la imagen se escala al valor dado """
     w = image.get_width()
@@ -20,16 +21,18 @@ def nombres_carpetas(directorio):
     """ Retorna una lista con el nombre de las carpertas en el directorio dado """
     return os.listdir(directorio)
 
+#---------------- Pantalla ----------------
 #Inicia pygame
 pygame.init()
-
-ventana = pygame.display.set_mode((constantes.ANCHO_VENTANA, constantes.ALTO_VENTANA)) #Inicia ventana
+#Inicia ventana
+ventana = pygame.display.set_mode((constantes.ANCHO_VENTANA, constantes.ALTO_VENTANA)) 
 #nombre de la ventana
 pygame.display.set_caption("Juego")
 
+#Fuente
+font = pygame.font.Font("assets/fonts/m6x11.ttf",20)
 
-
-#Importar imagenes
+#---------------- Animaciones ----------------
 #Personaje
 animaciones = []
 for i in range (10):
@@ -52,8 +55,6 @@ for eni in tipo_enemigos:
         lista_temp.append(img_enemigo)
     animaciones_enemigos.append(lista_temp)
 
-print(animaciones_enemigos)
-
 #Arma
 imagen_ballesta = pygame.image.load("assets/images/weapons/crossbow.png")
 imagen_ballesta = escalar_img(imagen_ballesta, constantes.ESCALA_ARMA)
@@ -61,7 +62,7 @@ imagen_ballesta = escalar_img(imagen_ballesta, constantes.ESCALA_ARMA)
 imagen_balas = pygame.image.load("assets/images/weapons/arrow.png")
 imagen_balas = escalar_img(imagen_balas, constantes.ESCALA_ARMA)
 
-#-------------- Personajes --------------
+#---------------- Personajes ----------------
 #Crear un jugador de la clase personaje
 jugador  = Personaje(50,50,animaciones, 100)
 #definir variables de movimiento del jugador
@@ -82,18 +83,22 @@ lista_enemigos.append(blood_demon_2)
 lista_enemigos.append(flying_demon)
 lista_enemigos.append(flying_demon_2)
 
-#-------------- Armas --------------
+#---------------- Armas ----------------
 #Crear un arma de la clase weapon
 ballesta = Weapon(imagen_ballesta, imagen_balas)
+
 #Crear grupo de sprites
 grupo_balas = pygame.sprite.Group()
+grupo_damage_text = pygame.sprite.Group()
 
-
+#Critico
+critico = False
 
 #Controlar frame-rate
 reloj = pygame.time.Clock()
 
 run = True
+#---------------- BUCLE DE JUEGO ----------------
 while run:
     #determinar fps
     reloj.tick(constantes.FPS)
@@ -129,19 +134,27 @@ while run:
         #Si hay una bala se agrega al grupo
         grupo_balas.add(bala)
     for bala in grupo_balas:
-        bala.update(lista_enemigos)
+        damage, pos_damage, critico = bala.update(lista_enemigos)
+        if damage:
+            color = constantes.COLOR_GOLPE_CRITICO if critico else constantes.COLOR_GOLPE
+            damage_text = DmgText(pos_damage.centerx, pos_damage.centery, int(damage), font, color)
+            grupo_damage_text.add(damage_text) 
+    #Actualiza daño
+    grupo_damage_text.update()
 
-    #Dibujar al jugador
+    #---------------- Dibujar ----------------
+    # al jugador
     jugador.dibujar(ventana)
-    #Dibujar el arma
+    # el arma
     ballesta.dibujar(ventana)
-    #Dibujar enemigos
+    # enemigos
     for ene in lista_enemigos:
         ene.dibujar(ventana)
-    #Dibujar balas
+    # balas
     for bala in grupo_balas:
         bala.dibujar(ventana)
-
+    # textos
+    grupo_damage_text.draw(ventana)
 
     #recorre los posibles distintos eventos que se ejecuten 
     for event in pygame.event.get(): #event.get entrega la lista de todos los eventos que pueden ocurrir

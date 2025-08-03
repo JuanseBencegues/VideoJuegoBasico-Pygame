@@ -20,4 +20,6 @@ python3 main.py
 # Créditos
 ## Assets
 https://aamatniekss.itch.io/fantasy-knight-free-pixelart-animated-character
-
+https://xzany.itch.io/flying-demon-2d-pixel-art
+https://immortal-burrito.itch.io/blood-demons
+https://managore.itch.io/m6x11

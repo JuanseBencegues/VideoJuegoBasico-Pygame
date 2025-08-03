@@ -75,6 +75,9 @@ class Bullet(pygame.sprite.Sprite):
         self.delta_y = -math.sin(math.radians(self.angulo))*constantes.VELOCIDAD_BALA
 
     def update(self, lista_enemigos):
+        damage = 0
+        pos_damage = None
+        critico = False
         self.rect.x += self.delta_x
         self.rect.y += self.delta_y
 
@@ -83,13 +86,25 @@ class Bullet(pygame.sprite.Sprite):
             self.kill()
         
         #Verificar colision con enemigos
-        for enemigo in lista_enemigos:
+        """ for enemigo in lista_enemigos:
             if enemigo.forma.colliderect(self.rect):
                 damage = constantes.DMG_ARMA + random.randint(0,constantes.DMG_CRIT_MAX_ARMA)
+                pos_damage = enemigo.forma
                 enemigo.energia -= damage
                 self.kill()
                 break
-
-
+        return damage, pos_damage    """  
+        for enemigo in lista_enemigos:
+            if enemigo.forma.colliderect(self.rect):
+                critico = random.random() < constantes.PROB_CRITICO
+                if critico:
+                    damage = constantes.DMG_ARMA * constantes.MULT_CRITICO
+                else:
+                    damage = constantes.DMG_ARMA
+        
+                pos_damage = enemigo.forma
+                enemigo.energia -= damage
+                self.kill()
+        return damage, pos_damage, critico  # devolvé si fue crítico
     def dibujar(self, interfaz):
         interfaz.blit(self.image, (self.rect.centerx, self.rect.centery - int(self.image.get_height()/2)))
