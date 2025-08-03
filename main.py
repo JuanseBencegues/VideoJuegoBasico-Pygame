@@ -3,6 +3,7 @@ import constantes
 from personaje import Personaje
 from weapons import Weapon
 from textos import DmgText
+from items import Item
 import os
 
 #---------------- Funciones ----------------
@@ -20,6 +21,17 @@ def contar_elementos(directorio):
 def nombres_carpetas(directorio):
     """ Retorna una lista con el nombre de las carpertas en el directorio dado """
     return os.listdir(directorio)
+
+def vida_jugador():
+    c_mitad_dibujado = False
+    for i in range(constantes.CANTIDAD_CORAZONES):
+        if jugador.energia >=((i+1)*100 / constantes.CANTIDAD_CORAZONES):
+            ventana.blit(corazon_lleno, (5+i*50,5))
+        elif jugador.energia % 25 > 0 and not c_mitad_dibujado:
+            ventana.blit(corazon_mitad, (5+i*50,5))
+            c_mitad_dibujado = True
+        else:
+            ventana.blit(corazon_vacio,(5+i*50,5))
 
 #---------------- Pantalla ----------------
 #Inicia pygame
@@ -40,13 +52,13 @@ for i in range (10):
     img = escalar_img(img, constantes.ESCALA_PERSONAJE)
     animaciones.append(img)
 #Salud
-corazon_vacio = pygame.image.load("assets/images/items/heart_empty.png")
+corazon_vacio = pygame.image.load("assets/images/items/hearts/heart_empty.png")
 corazon_vacio = escalar_img(corazon_vacio, constantes.ESCALA_CORAZONES)
 
-corazon_mitad = pygame.image.load("assets/images/items/heart_half.png")
+corazon_mitad = pygame.image.load("assets/images/items/hearts/heart_half.png")
 corazon_mitad = escalar_img(corazon_mitad, constantes.ESCALA_CORAZONES)
 
-corazon_lleno = pygame.image.load("assets/images/items/heart_full.png")
+corazon_lleno = pygame.image.load("assets/images/items/hearts/heart_full.png")
 corazon_lleno = escalar_img(corazon_lleno, constantes.ESCALA_CORAZONES)
 
 #Enemigos
@@ -71,17 +83,25 @@ imagen_ballesta = escalar_img(imagen_ballesta, constantes.ESCALA_ARMA)
 imagen_balas = pygame.image.load("assets/images/weapons/arrow.png")
 imagen_balas = escalar_img(imagen_balas, constantes.ESCALA_ARMA)
 
+#Items
+#Pocion
+directorio_pociones = "assets/images/items/potions"
+animaciones_pocion = []
+for i in range(contar_elementos(directorio_pociones)):
+    img_pocion = pygame.image.load(f"assets/images/items/potions/potion_{i+1}.png")
+    img_pocion= escalar_img(img_pocion, constantes.ESCALA_POCION)
+    animaciones_pocion.append(img_pocion)
+#Monedas
+directorio_monedas = "assets/images/items/coin"
+animaciones_monedas = []
+for i in range(contar_elementos(directorio_monedas)):
+    img_moneda = pygame.image.load(f"assets/images/items/coin/coin_{i+1}.png")
+    img_moneda = escalar_img(img_moneda, constantes.ESCALA_MONEDA)
+    animaciones_monedas.append(img_moneda)
+
+
 #---------------- Personajes ----------------
-def vida_jugador():
-    c_mitad_dibujado = False
-    for i in range(constantes.CANTIDAD_CORAZONES):
-        if jugador.energia >=((i+1)*100 / constantes.CANTIDAD_CORAZONES):
-            ventana.blit(corazon_lleno, (5+i*50,5))
-        elif jugador.energia % 25 > 0 and not c_mitad_dibujado:
-            ventana.blit(corazon_mitad, (5+i*50,5))
-            c_mitad_dibujado = True
-        else:
-            ventana.blit(corazon_vacio,(5+i*50,5))
+
 #Crear un jugador de la clase personaje
 jugador  = Personaje(50,70,animaciones, 100)
 #definir variables de movimiento del jugador
@@ -105,13 +125,25 @@ lista_enemigos.append(flying_demon_2)
 #---------------- Armas ----------------
 #Crear un arma de la clase weapon
 ballesta = Weapon(imagen_ballesta, imagen_balas)
-
-#Crear grupo de sprites
-grupo_balas = pygame.sprite.Group()
-grupo_damage_text = pygame.sprite.Group()
-
 #Critico
 critico = False
+
+#---------------- Items ----------------
+moneda = Item(350, 25, 0, animaciones_monedas)
+pocion = Item(450, 230, 1, animaciones_pocion)
+
+
+#---------------- Grupos ----------------
+#grupos de sprites
+""" Utilizo estos grupos para los objetos de la misma clase 
+    de los cuales podria haber mas de uno en pantalla """
+grupo_balas = pygame.sprite.Group()
+grupo_damage_text = pygame.sprite.Group()
+grupo_items = pygame.sprite.Group()
+
+grupo_items.add(moneda)
+grupo_items.add(pocion)
+
 
 #Controlar frame-rate
 reloj = pygame.time.Clock()
@@ -145,7 +177,7 @@ while run:
     #Actualiza estado enemigos
     for ene in lista_enemigos:
         ene.update()
-        print(ene.energia)
+        #print(ene.energia)
 
     #Actualiza estado del arma
     bala = ballesta.update(jugador)
@@ -160,6 +192,9 @@ while run:
             grupo_damage_text.add(damage_text) 
     #Actualiza daño
     grupo_damage_text.update()
+
+    #Actualiza items
+    grupo_items.update()
 
     #---------------- Dibujar ----------------
     # al jugador
@@ -176,7 +211,8 @@ while run:
     vida_jugador()
     # textos
     grupo_damage_text.draw(ventana)
-
+    # items
+    grupo_items.draw(ventana)
 
     #recorre los posibles distintos eventos que se ejecuten 
     for event in pygame.event.get(): #event.get entrega la lista de todos los eventos que pueden ocurrir
