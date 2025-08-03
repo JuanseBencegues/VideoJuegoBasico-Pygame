@@ -30,7 +30,7 @@ ventana = pygame.display.set_mode((constantes.ANCHO_VENTANA, constantes.ALTO_VEN
 pygame.display.set_caption("Juego")
 
 #Fuente
-font = pygame.font.Font("assets/fonts/m6x11.ttf",20)
+font = pygame.font.Font("assets/fonts/m6x11.ttf",constantes.TAM_FUNTE)
 
 #---------------- Animaciones ----------------
 #Personaje
@@ -39,6 +39,15 @@ for i in range (10):
     img = pygame.image.load(f"assets/images/characters/player/run_{i}.png")
     img = escalar_img(img, constantes.ESCALA_PERSONAJE)
     animaciones.append(img)
+#Salud
+corazon_vacio = pygame.image.load("assets/images/items/heart_empty.png")
+corazon_vacio = escalar_img(corazon_vacio, constantes.ESCALA_CORAZONES)
+
+corazon_mitad = pygame.image.load("assets/images/items/heart_half.png")
+corazon_mitad = escalar_img(corazon_mitad, constantes.ESCALA_CORAZONES)
+
+corazon_lleno = pygame.image.load("assets/images/items/heart_full.png")
+corazon_lleno = escalar_img(corazon_lleno, constantes.ESCALA_CORAZONES)
 
 #Enemigos
 directorio_enemigos = "assets/images/characters/enemies"
@@ -63,8 +72,18 @@ imagen_balas = pygame.image.load("assets/images/weapons/arrow.png")
 imagen_balas = escalar_img(imagen_balas, constantes.ESCALA_ARMA)
 
 #---------------- Personajes ----------------
+def vida_jugador():
+    c_mitad_dibujado = False
+    for i in range(constantes.CANTIDAD_CORAZONES):
+        if jugador.energia >=((i+1)*100 / constantes.CANTIDAD_CORAZONES):
+            ventana.blit(corazon_lleno, (5+i*50,5))
+        elif jugador.energia % 25 > 0 and not c_mitad_dibujado:
+            ventana.blit(corazon_mitad, (5+i*50,5))
+            c_mitad_dibujado = True
+        else:
+            ventana.blit(corazon_vacio,(5+i*50,5))
 #Crear un jugador de la clase personaje
-jugador  = Personaje(50,50,animaciones, 100)
+jugador  = Personaje(50,70,animaciones, 100)
 #definir variables de movimiento del jugador
 mover_arriba = False
 mover_abajo = False
@@ -153,8 +172,11 @@ while run:
     # balas
     for bala in grupo_balas:
         bala.dibujar(ventana)
+    # corazones
+    vida_jugador()
     # textos
     grupo_damage_text.draw(ventana)
+
 
     #recorre los posibles distintos eventos que se ejecuten 
     for event in pygame.event.get(): #event.get entrega la lista de todos los eventos que pueden ocurrir
